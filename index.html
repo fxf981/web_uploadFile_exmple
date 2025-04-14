@@ -3,19 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>File Upload</title>
-  
+
   <!-- Font Awesome for icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #121212;
       color: #eeeeee;
+      height: 100%;
+    }
+
+    .main {
+      height: calc(100% - 80px);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
       flex-direction: column;
     }
 
@@ -26,12 +32,12 @@
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
       width: 400px;
       text-align: center;
-      margin-bottom: 20px;
       border: 1px solid #2a2a2a;
       transition: border 0.3s ease, background 0.3s ease;
+      z-index: 10;
     }
 
-    .upload-box.dragover {
+    body.dragover .upload-box {
       border-color: #00bcd4;
       background: #2a2a2a;
     }
@@ -76,7 +82,7 @@
       font-size: 14px;
       color: #888;
       width: 100%;
-      padding: 10px;
+      padding: 20px;
       background: #181818;
       border-top: 1px solid #2a2a2a;
     }
@@ -89,21 +95,29 @@
     .footer a:hover {
       text-decoration: underline;
     }
+
+    .drop-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
 
-  <div class="upload-box" id="uploadBox">
-    <i class="fa fa-flag flag-icon"></i>
-    <h2>Upload a File</h2>
-    <p>Drag and drop your file here or click to select</p>
+  <div class="main">
+    <div class="upload-box" id="uploadBox">
+      <i class="fa fa-flag flag-icon"></i>
+      <h2>Upload a File</h2>
+      <p>Drag and drop your file anywhere on the page</p>
 
-    <form id="uploadForm" action="upload.php" method="post" enctype="multipart/form-data">
-      <input type="file" id="fileInput" name="fileToUpload" />
-      <label for="fileInput" class="upload-label">Choose File</label>
-    </form>
+      <form id="uploadForm" action="upload.php" method="post" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="fileToUpload" />
+        <label for="fileInput" class="upload-label">Choose File</label>
+      </form>
 
-    <div class="status" id="statusMsg"></div>
+      <div class="status" id="statusMsg"></div>
+    </div>
   </div>
 
   <div class="footer">
@@ -112,24 +126,26 @@
   </div>
 
   <script>
-    const uploadBox = document.getElementById('uploadBox');
     const fileInput = document.getElementById('fileInput');
-    const uploadForm = document.getElementById('uploadForm');
     const statusMsg = document.getElementById('statusMsg');
+    const body = document.body;
 
-    // Drag & drop
-    uploadBox.addEventListener('dragover', (e) => {
+    // Highlight entire body on drag
+    window.addEventListener('dragover', (e) => {
       e.preventDefault();
-      uploadBox.classList.add('dragover');
+      body.classList.add('dragover');
     });
 
-    uploadBox.addEventListener('dragleave', () => {
-      uploadBox.classList.remove('dragover');
+    window.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      if (e.target === document.body || e.target === document.documentElement) {
+        body.classList.remove('dragover');
+      }
     });
 
-    uploadBox.addEventListener('drop', (e) => {
+    window.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadBox.classList.remove('dragover');
+      body.classList.remove('dragover');
 
       const file = e.dataTransfer.files[0];
       if (file) {
@@ -137,7 +153,7 @@
       }
     });
 
-    // Click-based file selection
+    // Fallback click upload
     fileInput.addEventListener('change', () => {
       const file = fileInput.files[0];
       if (file) {
@@ -155,14 +171,14 @@
         method: 'POST',
         body: formData
       })
-      .then(res => res.text())
-      .then(data => {
-        statusMsg.innerHTML = `<span style="color:lightgreen">Success:</span> ${data}`;
-      })
-      .catch(err => {
-        console.error(err);
-        statusMsg.innerHTML = `<span style="color:red">Upload failed.</span>`;
-      });
+        .then(res => res.text())
+        .then(data => {
+          statusMsg.innerHTML = `<span style="color:lightgreen">Success:</span> ${data}`;
+        })
+        .catch(err => {
+          console.error(err);
+          statusMsg.innerHTML = `<span style="color:red">Upload failed.</span>`;
+        });
     }
   </script>
 </body>
