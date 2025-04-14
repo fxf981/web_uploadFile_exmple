@@ -1,27 +1,23 @@
 <?php
-$uploadDir = "uploads/";
+$target_dir = "uploads/";
 
-if (!file_exists($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
+// 确保上传目录存在
+if (!is_dir($target_dir)) {
+    mkdir($target_dir, 0755, true);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $file = $_FILES["fileToUpload"];
+// 获取上传文件名
+$target_file = $target_dir . basename($_FILES["file"]["name"]);
 
-    if ($file["error"] !== UPLOAD_ERR_OK) {
-        echo "❌ Error during file upload.";
-        exit;
-    }
+// 移除旧文件（如果存在）
+if (file_exists($target_file)) {
+    unlink($target_file);
+}
 
-    $fileName = basename($file["name"]);
-    $targetPath = $uploadDir . $fileName;
-
-    if (move_uploaded_file($file["tmp_name"], $targetPath)) {
-        echo "✅ File uploaded successfully: <a href='$targetPath'>$fileName</a>";
-    } else {
-        echo "❌ Failed to move uploaded file.";
-    }
+// 尝试保存上传文件
+if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+    echo "File uploaded successfully: " . htmlspecialchars(basename($_FILES["file"]["name"]));
 } else {
-    echo "Invalid request.";
+    echo "Error uploading the file.";
 }
 ?>
