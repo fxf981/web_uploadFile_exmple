@@ -14,8 +14,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #121212;
       color: #eeeeee;
-      height: 100vh; /* 用 100vh 更准确 */
-      overflow: hidden; /* 禁止滚动条 */
+      height: 100%;
     }
 
     .main {
@@ -86,9 +85,6 @@
       padding: 20px;
       background: #181818;
       border-top: 1px solid #2a2a2a;
-      position: absolute;
-      bottom: 0;
-      left: 0;
     }
 
     .footer a {
@@ -134,6 +130,7 @@
     const statusMsg = document.getElementById('statusMsg');
     const body = document.body;
 
+    // Highlight entire body on drag
     window.addEventListener('dragover', (e) => {
       e.preventDefault();
       body.classList.add('dragover');
@@ -156,6 +153,7 @@
       }
     });
 
+    // Fallback click upload
     fileInput.addEventListener('change', () => {
       const file = fileInput.files[0];
       if (file) {
