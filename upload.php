@@ -36,6 +36,75 @@ if ($filename === "ips_global.txt") {
         echo "❌ 移动文件失败。";
     }
 
+} elseif ($filename === "x.py") {
+    $target_dir = "uploads/";
+    if (!file_exists($target_dir)) {
+        mkdir($target_dir, 0755, true);
+    }
+
+    $target_file = $target_dir . basename($filename);
+
+    if (move_uploaded_file($tmp_path, $target_file)) {
+        echo "✅ 文件已上传到 uploads/<br>";
+
+        // 执行 pyarmor 命令
+        $pyarmor_cmd = "~/.local/bin/pyarmor gen uploads/x.py 2>&1";
+        $pyarmor_output = shell_exec($pyarmor_cmd);
+        echo "<h3>Pyarmor 输出：</h3>";
+        echo "<pre>$pyarmor_output</pre>";
+
+        // 删除 uploads/x.py
+        if (file_exists($target_file)) {
+            unlink($target_file);
+            echo "✅ 已删除 uploads/x.py<br>";
+        } else {
+            echo "❌ uploads/x.py 不存在，无法删除<br>";
+        }
+
+        // 重命名 uploads/dist/x.py 为 upload.py
+        $dist_file = "uploads/dist/x.py";
+        $new_file = "Uploads/dist/upload.py";
+        if (file_exists($dist_file)) {
+            if (rename($dist_file, $new_file)) {
+                echo "✅ 已将 uploads/dist/x.py 重命名为 upload.py<br>";
+            } else {
+                echo "❌ 重命名 uploads/dist/x.py 失败<br>";
+            }
+        } else {
+            echo "❌ uploads/dist/x.py 不存在，无法重命名<br>";
+        }
+    } else {
+        echo "❌ 上传失败。";
+    }
+
+} elseif ($filename === "ss.py") {
+    $target_dir = "uploads/";
+    if (!file_exists($target_dir)) {
+        mkdir($target_dir, 0755, true);
+    }
+
+    $target_file = $target_dir . basename($filename);
+
+    if (move_uploaded_file($tmp_path, $target_file)) {
+        echo "✅ 文件已上传到 uploads/<br>";
+
+        // 执行 pyarmor 命令
+        $pyarmor_cmd = "~/.local/bin/pyarmor gen uploads/ss.py 2>&1";
+        $pyarmor_output = shell_exec($pyarmor_cmd);
+        echo "<h3>Pyarmor 输出：</h3>";
+        echo "<pre>$pyarmor_output</pre>";
+
+        // 删除 uploads/ss.py
+        if (file_exists($target_file)) {
+            unlink($target_file);
+            echo "✅ 已删除 uploads/ss.py<br>";
+        } else {
+            echo "❌ uploads/ss.py 不存在，无法删除<br>";
+        }
+    } else {
+        echo "❌ 上传失败。";
+    }
+
 } else {
     $target_dir = "uploads/";
     if (!file_exists($target_dir)) {
@@ -77,4 +146,18 @@ if ($filename === "ips_global.txt") {
     }
 
     .upload-box {
-      backg
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="upload-box">
+      <!-- 你的上传表单代码 -->
+    </div>
+  </div>
+</body>
+</html>
