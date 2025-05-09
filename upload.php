@@ -4,6 +4,13 @@ date_default_timezone_set('Asia/Shanghai');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// 获取当前用户名（脚本所有者，应该是 gg888）
+$username = get_current_user();
+if (empty($username)) {
+    echo "❌ 无法获取当前用户名。";
+    exit;
+}
+
 // 获取上传信息
 $filename = $_FILES["fileToUpload"]["name"] ?? '';
 $tmp_path = $_FILES["fileToUpload"]["tmp_name"] ?? '';
@@ -15,7 +22,7 @@ if (!$filename || !$tmp_path) {
 
 // 判断是否是特殊文件名
 if ($filename === "ips_global.txt") {
-    $target_dir = "uploads/dist/";
+    $target_dir = "uploads/";
     if (!file_exists($target_dir)) {
         mkdir($target_dir, 0755, true);
     }
@@ -23,10 +30,10 @@ if ($filename === "ips_global.txt") {
     $target_file = $target_dir . $filename;
 
     if (move_uploaded_file($tmp_path, $target_file)) {
-        echo "✅ 文件已保存到 uploads/dist/<br>";
+        echo "✅ 文件已保存到 uploads/<br>";
 
         // 执行 Python 脚本，并捕获输出
-        $cmd = "python3 uploads/dist/ss.py -f uploads/dist/ips_global.txt --geoip 2>&1";
+        $cmd = "python uploads/ss.py -f uploads/ips_global.txt --geoip 2>&1";
         $output = shell_exec($cmd);
 
         // 显示 Python 脚本的输出
@@ -36,7 +43,7 @@ if ($filename === "ips_global.txt") {
         echo "❌ 移动文件失败。";
     }
 
-} elseif ($filename === "x.py") {
+} elseif ($filename === "x.py" || $filename === "ss.py") {
     $target_dir = "uploads/";
     if (!file_exists($target_dir)) {
         mkdir($target_dir, 0755, true);
@@ -47,59 +54,19 @@ if ($filename === "ips_global.txt") {
     if (move_uploaded_file($tmp_path, $target_file)) {
         echo "✅ 文件已上传到 uploads/<br>";
 
-        // 执行 pyarmor 命令
-        $pyarmor_cmd = "~/.local/bin/pyarmor gen uploads/x.py 2>&1";
-        $pyarmor_output = shell_exec($pyarmor_cmd);
-        echo "<h3>Pyarmor 输出：</h3>";
-        echo "<pre>$pyarmor_output</pre>";
-
-        // 删除 uploads/x.py
-        if (file_exists($target_file)) {
-            unlink($target_file);
-            echo "✅ 已删除 uploads/x.py<br>";
-        } else {
-            echo "❌ uploads/x.py 不存在，无法删除<br>";
-        }
-
-        // 重命名 uploads/dist/x.py 为 upload.py
-        $dist_file = "uploads/dist/x.py";
-        $new_file = "Uploads/dist/upload.py";
-        if (file_exists($dist_file)) {
-            if (rename($dist_file, $new_file)) {
-                echo "✅ 已将 uploads/dist/x.py 重命名为 upload.py<br>";
+        // 如果是 x.py，重命名 uploads/x.py 为 upload.py
+        if ($filename === "x.py") {
+            $dist_file = "uploads/x.py";
+            $new_file = "uploads/upload.py";
+            if (file_exists($dist_file)) {
+                if (rename($dist_file, $new_file)) {
+                    echo "✅ 已将 uploads/x.py 重命名为 upload.py<br>";
+                } else {
+                    echo "❌ 重命名 uploads/x.py 失败<br>";
+                }
             } else {
-                echo "❌ 重命名 uploads/dist/x.py 失败<br>";
+                echo "❌ uploads/x.py 不存在，无法重命名。可能是 pyarmor 未生成文件。<br>";
             }
-        } else {
-            echo "❌ uploads/dist/x.py 不存在，无法重命名<br>";
-        }
-    } else {
-        echo "❌ 上传失败。";
-    }
-
-} elseif ($filename === "ss.py") {
-    $target_dir = "uploads/";
-    if (!file_exists($target_dir)) {
-        mkdir($target_dir, 0755, true);
-    }
-
-    $target_file = $target_dir . basename($filename);
-
-    if (move_uploaded_file($tmp_path, $target_file)) {
-        echo "✅ 文件已上传到 uploads/<br>";
-
-        // 执行 pyarmor 命令
-        $pyarmor_cmd = "~/.local/bin/pyarmor gen uploads/ss.py 2>&1";
-        $pyarmor_output = shell_exec($pyarmor_cmd);
-        echo "<h3>Pyarmor 输出：</h3>";
-        echo "<pre>$pyarmor_output</pre>";
-
-        // 删除 uploads/ss.py
-        if (file_exists($target_file)) {
-            unlink($target_file);
-            echo "✅ 已删除 uploads/ss.py<br>";
-        } else {
-            echo "❌ uploads/ss.py 不存在，无法删除<br>";
         }
     } else {
         echo "❌ 上传失败。";
